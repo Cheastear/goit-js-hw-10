@@ -7,25 +7,31 @@ form.addEventListener('submit', e => {
     e.preventDefault();
     const delay = form.elements['delay'].value;
     const state = form.elements['state'].value;
-    if (state == 'fulfilled') {
-        Promise.resolve(delay).then(e => {
-            setTimeout(e => {
-                iziToast.show({
-                    message: `✅ Fulfilled promise in ${delay}ms`,
+    
+    const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if(state == 'fulfilled'){
+                resolve(`✅ Fulfilled promise in ${delay}ms`);
+            }
+            else if (state == 'rejected'){
+                reject(`❌ Rejected promise in ${delay}ms`);
+            }
+        }, delay)
+    })
+    
+    promise
+        .then(text => {
+            iziToast.show({
+                    message: text,
                     position: 'topRight'
                 });
-            }, delay)
-        });
-    }
-    else if (state == 'rejected') {
-        Promise.reject(delay).catch(e => {
-            setTimeout(e => {
-                iziToast.error({
-                    message: `❌ Rejected promise in ${delay}ms`,
+        })
+        .catch(err => {
+            iziToast.error({
+                    message: err,
                     position: 'topRight'
                 });
-            }, delay)
-        });
-    }
+        })
+    
     e.currentTarget.reset()
 });
